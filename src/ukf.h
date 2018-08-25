@@ -14,7 +14,8 @@ class UKF {
 public:
 
   ///* initially set to false, set to true in first call of ProcessMeasurement
-  bool is_initialized_;
+  bool is_radar_initialized_;
+  bool is_laser_initialized_;
 
   ///* if this is false, laser measurements will be ignored (except for init)
   bool use_laser_;
@@ -67,7 +68,23 @@ public:
   ///* Sigma point spreading parameter
   double lambda_;
 
+  MatrixXd P_aug;
 
+  MatrixXd Xsig_aug;
+
+  VectorXd x_aug;
+  MatrixXd Xsig_pred;
+  VectorXd x_pred;
+  MatrixXd P_pred;
+  int n_z_laser;
+  int n_z_radar;
+
+  VectorXd z_pred_laser;
+  MatrixXd S_laser;
+  VectorXd z_pred_radar;
+  MatrixXd S_radar;
+  MatrixXd Zsig_laser;
+  MatrixXd Zsig_radar;
   /**
    * Constructor
    */
@@ -102,6 +119,14 @@ public:
    * @param meas_package The measurement at k+1
    */
   void UpdateRadar(MeasurementPackage meas_package);
+  void AugmentedSigmaPoints();
+
+  void SigmaPointPrediction(double delta_t);
+  void PredictMeanAndCovariance(VectorXd* x_out, MatrixXd* P_out);
+ 
+  void PredictLaserMeasurement(VectorXd* z_out, MatrixXd* S_out, MatrixXd &Zsig);
+  void PredictRadarMeasurement(VectorXd* z_out, MatrixXd* S_out, MatrixXd &Zsig);
+  void UpdateState(const VectorXd &z, VectorXd &x, MatrixXd &P, MatrixXd &Zsig, VectorXd &z_pred, MatrixXd &S,  int n_z, bool isradar=true);
 };
 
 #endif /* UKF_H */
