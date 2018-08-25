@@ -85,6 +85,9 @@ public:
   MatrixXd S_radar;
   MatrixXd Zsig_laser;
   MatrixXd Zsig_radar;
+
+  double NIS_Laser;
+  double NIS_Radar;
   /**
    * Constructor
    */

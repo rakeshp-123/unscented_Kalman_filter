@@ -18,6 +18,12 @@ UKF::UKF() {
   // if this is false, radar measurements will be ignored (except during init)
   use_radar_ = true;
 
+  NIS_Laser = 0.0;
+  NIS_Radar = 0.0;  
+
+  is_radar_initialized_ = false;
+  is_laser_initialized_ = false;
+
   // initial state vector
   x_ = VectorXd(5);
 
@@ -107,7 +113,7 @@ void UKF::ProcessMeasurement(MeasurementPackage measurement_pack) {
   measurements.
   */
   float rho, phi, rho_dot;  /* state variables in Polar coordinate */
-  float px, py, vx, vy, v;    /* State variables in Cartesian coordinate */
+  float px, py;    /* State variables in Cartesian coordinate */
   	
   if ((!is_radar_initialized_) || (!is_laser_initialized_)) {
     /**
@@ -394,7 +400,7 @@ void UKF::PredictMeanAndCovariance(VectorXd* x_out, MatrixXd* P_out) {
 void UKF::PredictLaserMeasurement(VectorXd* z_out, MatrixXd* S_out, MatrixXd &Zsig) {
 
   //set state dimension
-  int n_x = n_x_;
+  //int n_x = n_x_;
 
   //set augmented dimension
   int n_aug = n_aug_;
@@ -478,7 +484,7 @@ void UKF::PredictLaserMeasurement(VectorXd* z_out, MatrixXd* S_out, MatrixXd &Zs
 void UKF::PredictRadarMeasurement(VectorXd* z_out, MatrixXd* S_out, MatrixXd &Zsig) {
 
   //set state dimension
-  int n_x = n_x_;
+  //int n_x = n_x_;
 
   //set augmented dimension
   int n_aug = n_aug_;
@@ -629,6 +635,14 @@ void UKF::UpdateState(const VectorXd &z, VectorXd &x, MatrixXd &P, MatrixXd &Zsi
   x_ = x + K * z_diff;
   P_ = P - K*S*K.transpose();
 
+  if(isradar)
+  {
+    NIS_Radar = z_diff.transpose() * S.inverse() * z_diff;
+  }
+  else
+  {
+    NIS_Laser = z_diff.transpose() * S.inverse() * z_diff;
+  }
   //print result
   //std::cout << "Updated state x: " << std::endl << x << std::endl;
   //std::cout << "Updated state covariance P: " << std::endl << P << std::endl;
